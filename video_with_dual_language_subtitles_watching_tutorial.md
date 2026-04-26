@@ -1,41 +1,35 @@
-# macOS：本地视频挂载中英双语字幕观看教程
 
-> 适用场景：你已经**合法获得/自己拥有授权**的视频文件，并且已经拥有对应的中文字幕和英文字幕文件，希望在 macOS 上实现本地播放、自动加载字幕、中英双语同时显示，或把字幕封装进一个 MKV 文件中。  
->  
-> 本教程不针对任何特定网站、账号、课程或个人路径，避免泄漏隐私。请不要下载、传播、破解、绕过 DRM 或使用未授权的版权内容。
+# macOS Local Video Bilingual Subtitle Guide
 
----
+A practical guide for watching local videos with Chinese-English bilingual subtitles on macOS.
 
-## 目录
+This project shows how to:
 
-- [1. 最终目标](#1-最终目标)
-- [2. 准备工具](#2-准备工具)
-- [3. 建立统一文件夹结构](#3-建立统一文件夹结构)
-- [4. 合法获取视频与字幕](#4-合法获取视频与字幕)
-- [5. 统一整理视频和字幕文件名](#5-统一整理视频和字幕文件名)
-- [6. 用 VLC 或 IINA 播放外挂字幕](#6-用-vlc-或-iina-播放外挂字幕)
-- [7. 合并中英字幕为双语字幕](#7-合并中英字幕为双语字幕)
-- [8. 让播放器自动加载双语字幕](#8-让播放器自动加载双语字幕)
-- [9. 可选：封装成内置字幕 MKV](#9-可选封装成内置字幕-mkv)
-- [10. 可选：做一个桌面快捷入口](#10-可选做一个桌面快捷入口)
-- [11. 常见问题排查](#11-常见问题排查)
+- Organize local video and subtitle files
+- Automatically match videos with Chinese and English subtitles
+- Merge Chinese and English `.srt` files into one bilingual subtitle file
+- Make VLC or IINA automatically load subtitles
+- Optionally package subtitles into MKV files using FFmpeg
+
+> This guide is intended only for videos and subtitles that you legally own or are authorized to use.  
+> Do not download, distribute, crack, bypass DRM, or share unauthorized copyrighted content.
 
 ---
 
-## 1. 最终目标
+## 1. Project Goal
 
-整理完成后，希望得到这样的结构：
+After setup, your folder structure should look like this:
 
 ```text
 video_subtitle_project/
-├── videos/          # 原始视频
-├── subs_zh/         # 原始中文字幕
-├── subs_en/         # 原始英文字幕
-├── watch/           # 整理后用于观看的文件
-└── mkv/             # 可选：封装后的 MKV 文件
-```
+├── videos/          # Original video files
+├── subs_zh/         # Original Chinese subtitles
+├── subs_en/         # Original English subtitles
+├── watch/           # Organized files for watching
+└── mkv/             # Optional packaged MKV files
+````
 
-`watch/` 文件夹中每一集应类似这样：
+Each episode in the `watch/` folder should look like this:
 
 ```text
 01.mp4
@@ -51,31 +45,27 @@ video_subtitle_project/
 02.srt
 ```
 
-其中：
+Explanation:
 
-- `01.mp4`：第 1 集视频
-- `01.zh-CN.srt`：第 1 集中文字幕
-- `01.en.srt`：第 1 集英文字幕
-- `01.bilingual.srt`：中英合并后的双语字幕
-- `01.srt`：复制出来的默认双语字幕，方便 VLC/IINA 自动加载
+* `01.mp4`: Episode 1 video
+* `01.zh-CN.srt`: Chinese subtitle
+* `01.en.srt`: English subtitle
+* `01.bilingual.srt`: merged bilingual subtitle
+* `01.srt`: default subtitle file for automatic loading
 
 ---
 
-## 2. 准备工具
+## 2. Requirements
 
-### 2.1 安装 Homebrew
+### Homebrew
 
-如果你的 Mac 已经安装过 Homebrew，可以跳过。
-
-在终端执行：
+Check whether Homebrew is installed:
 
 ```bash
 brew --version
 ```
 
-如果能显示版本号，说明已经安装。
-
-如果没有安装，请到 Homebrew 官网查看最新安装方式：
+If not installed, visit:
 
 ```text
 https://brew.sh/
@@ -83,31 +73,27 @@ https://brew.sh/
 
 ---
 
-### 2.2 安装播放器
-
-推荐安装 IINA 或 VLC。
+### IINA or VLC
 
 ```bash
 brew install --cask iina
 brew install --cask vlc
 ```
 
-说明：
+Recommended usage:
 
-- IINA：更符合 macOS 使用习惯
-- VLC：兼容性强，适合测试各种视频和字幕
+* **IINA**: better macOS user experience
+* **VLC**: stronger compatibility for testing videos and subtitles
 
 ---
 
-### 2.3 安装 FFmpeg
-
-FFmpeg 用于把字幕封装进 MKV 文件。
+### FFmpeg
 
 ```bash
 brew install ffmpeg
 ```
 
-检查是否安装成功：
+Check installation:
 
 ```bash
 ffmpeg -version
@@ -115,21 +101,21 @@ ffmpeg -version
 
 ---
 
-### 2.4 可选：安装 yt-dlp
+### Optional: yt-dlp
 
-如果你需要从自己有权访问的平台下载视频，可以使用 `yt-dlp`。请只用于合法授权内容。
+Only use `yt-dlp` for content you are legally authorized to access and save.
 
 ```bash
 python3 -m pip install -U yt-dlp
 ```
 
-检查是否安装成功：
+Check installation:
 
 ```bash
 python3 -m yt_dlp --version
 ```
 
-如果提示 Python 版本过旧，可以安装新版 Python：
+If Python is too old:
 
 ```bash
 brew install python
@@ -137,9 +123,9 @@ brew install python
 
 ---
 
-## 3. 建立统一文件夹结构
+## 3. Create Folder Structure
 
-在终端执行：
+Run:
 
 ```bash
 mkdir -p ~/Desktop/video_subtitle_project/videos
@@ -149,15 +135,15 @@ mkdir -p ~/Desktop/video_subtitle_project/watch
 mkdir -p ~/Desktop/video_subtitle_project/mkv
 ```
 
-然后手动放入文件：
+Then place your files manually:
 
 ```text
-视频文件         → videos/
-中文字幕文件     → subs_zh/
-英文字幕文件     → subs_en/
+Video files          → videos/
+Chinese subtitles    → subs_zh/
+English subtitles    → subs_en/
 ```
 
-例如：
+Example:
 
 ```text
 videos/
@@ -178,18 +164,11 @@ subs_en/
 
 ---
 
-## 4. 合法获取视频与字幕
+## 4. Legally Obtain Videos and Subtitles
 
-### 4.1 获取视频
+### Download videos
 
-视频来源可以是：
-
-- 自己录制的视频
-- 课程官方允许下载的视频
-- 已获得授权的公开视频
-- 平台明确允许离线保存的内容
-
-如果使用 `yt-dlp`，通用命令示例：
+Example command:
 
 ```bash
 cd ~/Desktop/video_subtitle_project
@@ -204,14 +183,14 @@ python3 -m yt_dlp \
   "VIDEO_URL"
 ```
 
-说明：
+Notes:
 
-- `VIDEO_URL` 替换为你有权下载的视频页面链接
-- `--cookies-from-browser chrome` 用于读取浏览器登录状态
-- 如果不需要登录，可以去掉 `--cookies-from-browser chrome`
-- `--playlist-items 1-25` 表示下载第 1 到第 25 个视频，可按实际情况修改
+* Replace `VIDEO_URL` with your authorized video URL.
+* `--cookies-from-browser chrome` uses your Chrome login session.
+* If login is not required, remove `--cookies-from-browser chrome`.
+* `--playlist-items 1-25` downloads items 1 to 25.
 
-如果遇到下载失败：
+If download fails, try clearing proxy variables:
 
 ```bash
 unset http_proxy
@@ -222,15 +201,11 @@ unset HTTPS_PROXY
 unset ALL_PROXY
 ```
 
-然后重新尝试。很多平台对代理、异常 IP、频繁请求比较敏感。
-
 ---
 
-### 4.2 获取字幕
+### Download subtitles
 
-你可以使用已有字幕，也可以下载平台提供的字幕。
-
-查看某个视频有哪些字幕：
+Check available subtitles:
 
 ```bash
 python3 -m yt_dlp \
@@ -239,7 +214,7 @@ python3 -m yt_dlp \
   "VIDEO_URL"
 ```
 
-只下载字幕，不下载视频：
+Download subtitles only:
 
 ```bash
 python3 -m yt_dlp \
@@ -253,36 +228,38 @@ python3 -m yt_dlp \
   "VIDEO_URL"
 ```
 
-注意：
+Notes:
 
-- 不一定每个视频都有中英文字幕
-- 自动字幕可能有错误
-- 没有英文字幕时，需要自己翻译或使用语音识别工具生成
-- 没有中文字幕时，需要自己翻译或生成
+* Not every video has both Chinese and English subtitles.
+* Auto-generated subtitles may contain errors.
+* If a subtitle is missing, you may need to translate or generate it yourself.
 
 ---
 
-## 5. 统一整理视频和字幕文件名
+## 5. Standardize Video and Subtitle Filenames
 
-如果视频和字幕名字不完全一致，播放器通常不会自动识别。  
-推荐不要手动改名，而是用脚本复制到 `watch/` 文件夹，并统一命名。
+If video and subtitle filenames do not match, players usually cannot load subtitles automatically.
 
-### 5.1 检查数量
+Instead of renaming manually, use the script below.
+
+---
+
+### Check file counts
 
 ```bash
 cd ~/Desktop/video_subtitle_project
 
-echo "视频数量："
+echo "Number of videos:"
 find videos -maxdepth 1 -type f | wc -l
 
-echo "中文字幕数量："
+echo "Number of Chinese subtitles:"
 find subs_zh -maxdepth 1 -type f | wc -l
 
-echo "英文字幕数量："
+echo "Number of English subtitles:"
 find subs_en -maxdepth 1 -type f | wc -l
 ```
 
-如果是 25 集，理想结果应该接近：
+For 25 episodes, the ideal result should be close to:
 
 ```text
 25
@@ -292,9 +269,9 @@ find subs_en -maxdepth 1 -type f | wc -l
 
 ---
 
-### 5.2 创建整理脚本
+## 6. Create `organize_files.py`
 
-创建 `organize_files.py`：
+Create the script:
 
 ```bash
 cd ~/Desktop/video_subtitle_project
@@ -318,13 +295,13 @@ WATCH_DIR.mkdir(parents=True, exist_ok=True)
 VIDEO_EXTS = {".mp4", ".mkv", ".webm", ".mov"}
 SUB_EXTS = {".srt", ".ass", ".vtt"}
 
-# 修改这里：课程/视频总数
+# Change this according to your project
 TOTAL_EPISODES = 25
 
 def extract_episode_number(filename: str):
     """
-    尽量从文件名中提取集数编号。
-    支持：
+    Try to extract the episode number from a filename.
+    Supports:
     01 - xxx.mp4
     Lecture 1 xxx.srt
     Lec 01 xxx.srt
@@ -364,9 +341,9 @@ def collect(folder: Path, exts):
             unknown.append(file)
         else:
             if n in result:
-                print(f"警告：第 {n:02d} 集出现重复文件：")
-                print(f"  已有：{result[n].name}")
-                print(f"  新的：{file.name}")
+                print(f"Warning: duplicate files found for Episode {n:02d}:")
+                print(f"  Existing: {result[n].name}")
+                print(f"  New: {file.name}")
             else:
                 result[n] = file
 
@@ -376,7 +353,7 @@ videos, unknown_videos = collect(VIDEO_DIR, VIDEO_EXTS)
 zh_subs, unknown_zh = collect(ZH_DIR, SUB_EXTS)
 en_subs, unknown_en = collect(EN_DIR, SUB_EXTS)
 
-print("\n========== 自动识别结果 ==========\n")
+print("\n========== Automatic Matching Result ==========\n")
 
 rows = []
 
@@ -387,10 +364,10 @@ for i in range(1, TOTAL_EPISODES + 1):
 
     status = "OK" if v and z and e else "MISSING"
 
-    print(f"第 {i:02d} 集：{status}")
-    print(f"  视频：{v.name if v else '缺失'}")
-    print(f"  中文：{z.name if z else '缺失'}")
-    print(f"  英文：{e.name if e else '缺失'}")
+    print(f"Episode {i:02d}: {status}")
+    print(f"  Video: {v.name if v else 'Missing'}")
+    print(f"  Chinese: {z.name if z else 'Missing'}")
+    print(f"  English: {e.name if e else 'Missing'}")
     print()
 
     rows.append([
@@ -407,34 +384,34 @@ with open(csv_path, "w", newline="", encoding="utf-8-sig") as f:
     writer.writerow(["episode", "video", "zh_subtitle", "en_subtitle", "status"])
     writer.writerows(rows)
 
-print("已生成匹配预览表：", csv_path)
+print("Generated matching preview table:", csv_path)
 
 if unknown_videos or unknown_zh or unknown_en:
-    print("\n========== 无法识别编号的文件 ==========")
+    print("\n========== Files Whose Episode Numbers Could Not Be Recognized ==========")
 
     if unknown_videos:
-        print("\n无法识别编号的视频：")
+        print("\nVideos with unrecognized episode numbers:")
         for f in unknown_videos:
             print("  ", f.name)
 
     if unknown_zh:
-        print("\n无法识别编号的中文字幕：")
+        print("\nChinese subtitles with unrecognized episode numbers:")
         for f in unknown_zh:
             print("  ", f.name)
 
     if unknown_en:
-        print("\n无法识别编号的英文字幕：")
+        print("\nEnglish subtitles with unrecognized episode numbers:")
         for f in unknown_en:
             print("  ", f.name)
 
-print("\n请先打开 match_preview.csv 检查匹配是否正确。")
-print("确认正确后，再运行：")
+print("\nPlease open match_preview.csv first and check whether the matches are correct.")
+print("After confirming everything is correct, run:")
 print("python3 organize_files.py --copy")
 
 if "--copy" not in sys.argv:
     raise SystemExit
 
-print("\n========== 开始复制并统一命名 ==========\n")
+print("\n========== Start copying and renaming files ==========\n")
 
 for i in range(1, TOTAL_EPISODES + 1):
     v = videos.get(i)
@@ -442,7 +419,7 @@ for i in range(1, TOTAL_EPISODES + 1):
     e = en_subs.get(i)
 
     if not (v and z and e):
-        print(f"跳过第 {i:02d} 集，因为文件不完整。")
+        print(f"Skipping Episode {i:02d} because the files are incomplete.")
         continue
 
     nn = f"{i:02d}"
@@ -451,90 +428,67 @@ for i in range(1, TOTAL_EPISODES + 1):
     shutil.copy2(z, WATCH_DIR / f"{nn}.zh-CN{z.suffix.lower()}")
     shutil.copy2(e, WATCH_DIR / f"{nn}.en{e.suffix.lower()}")
 
-    print(f"第 {nn} 集已整理完成")
+    print(f"Episode {nn} organized successfully.")
 
-print("\n全部完成。整理后的文件在：", WATCH_DIR)
+print("\nAll done. The organized files are in:", WATCH_DIR)
 PY
 ```
 
----
-
-### 5.3 先预览匹配结果
+Preview the matching result:
 
 ```bash
 python3 organize_files.py
 ```
 
-脚本会生成：
-
-```text
-match_preview.csv
-```
-
-请打开这个 CSV，确认每一集的视频、中文字幕、英文字幕匹配正确。
-
----
-
-### 5.4 确认无误后正式复制
+After checking `match_preview.csv`, copy and rename files:
 
 ```bash
 python3 organize_files.py --copy
 ```
 
-检查结果：
+Check the result:
 
 ```bash
 ls ~/Desktop/video_subtitle_project/watch | head -n 30
 ```
 
-应类似：
-
-```text
-01.mp4
-01.zh-CN.srt
-01.en.srt
-02.mp4
-02.zh-CN.srt
-02.en.srt
-```
-
 ---
 
-## 6. 用 VLC 或 IINA 播放外挂字幕
+## 7. Play External Subtitles
 
-打开 `watch/` 文件夹：
+Open the `watch/` folder:
 
 ```bash
 open ~/Desktop/video_subtitle_project/watch
 ```
 
-用 IINA 打开：
+Open with IINA:
 
 ```bash
 open -a IINA ~/Desktop/video_subtitle_project/watch/01.mp4
 ```
 
-用 VLC 打开：
+Open with VLC:
 
 ```bash
 open -a VLC ~/Desktop/video_subtitle_project/watch/01.mp4
 ```
 
-如果字幕没有自动出现：
+If subtitles do not appear automatically:
 
 ### IINA
 
 ```text
-菜单栏 → 字幕 → 打开字幕文件
+Menu Bar → Subtitles → Open Subtitle File
 ```
 
-选择：
+Choose:
 
 ```text
 01.zh-CN.srt
 ```
 
-或：
+or:
 
 ```text
 01.en.srt
@@ -546,28 +500,23 @@ open -a VLC ~/Desktop/video_subtitle_project/watch/01.mp4
 Subtitles → Add Subtitle File...
 ```
 
-选择：
+Choose:
 
 ```text
 01.zh-CN.srt
 ```
 
-或：
+or:
 
 ```text
 01.en.srt
 ```
 
-注意：VLC/IINA 通常一次只显示一个字幕轨。  
-如果想让中英文同时显示，需要把两个字幕合并成一个双语字幕文件。
+If you want Chinese and English subtitles to appear at the same time, merge them into one bilingual subtitle file.
 
 ---
 
-## 7. 合并中英字幕为双语字幕
-
-### 7.1 创建双语字幕合并脚本
-
-创建 `merge_bilingual_srt.py`：
+## 8. Create `merge_bilingual_srt.py`
 
 ```bash
 cd ~/Desktop/video_subtitle_project
@@ -579,7 +528,7 @@ import re
 ROOT = Path.home() / "Desktop" / "video_subtitle_project"
 WATCH = ROOT / "watch"
 
-# 修改这里：视频总集数
+# Change this according to your project
 TOTAL_EPISODES = 25
 
 def parse_srt(path: Path):
@@ -619,11 +568,11 @@ def merge_one(i: int):
     out_path = WATCH / f"{nn}.bilingual.srt"
 
     if not zh_path.exists():
-        print(f"缺少中文字幕：{zh_path.name}")
+        print(f"Missing Chinese subtitle: {zh_path.name}")
         return
 
     if not en_path.exists():
-        print(f"缺少英文字幕：{en_path.name}")
+        print(f"Missing English subtitle: {en_path.name}")
         return
 
     zh = parse_srt(zh_path)
@@ -632,13 +581,14 @@ def merge_one(i: int):
     n = min(len(zh), len(en))
 
     if len(zh) != len(en):
-        print(f"警告：第 {nn} 集中英文字幕条数不同：中文 {len(zh)} 条，英文 {len(en)} 条，将按较短数量合并")
+        print(f"Warning: Episode {nn} has different numbers of subtitle entries: Chinese {len(zh)}, English {len(en)}. Merging according to the smaller number.")
 
     lines = []
 
     for idx in range(n):
-        # 默认使用英文字幕的时间轴。
-        # 如果你的中文字幕时间轴更准确，可以改为：time_line = zh[idx]["time"]
+        # Use the English subtitle timeline by default.
+        # If the Chinese subtitle timeline is more accurate, change this to:
+        # time_line = zh[idx]["time"]
         time_line = en[idx]["time"]
 
         en_text = " ".join(en[idx]["text"]).strip()
@@ -647,7 +597,7 @@ def merge_one(i: int):
         lines.append(str(idx + 1))
         lines.append(time_line)
 
-        # 上英文，下中文
+        # English above, Chinese below
         if en_text:
             lines.append(en_text)
         if zh_text:
@@ -656,24 +606,22 @@ def merge_one(i: int):
         lines.append("")
 
     out_path.write_text("\n".join(lines), encoding="utf-8")
-    print(f"已生成：{out_path.name}")
+    print(f"Generated: {out_path.name}")
 
 for i in range(1, TOTAL_EPISODES + 1):
     merge_one(i)
 
-print("\n全部完成。双语字幕已生成在 watch 文件夹中。")
+print("\nAll done. Bilingual subtitles have been generated in the watch folder.")
 PY
 ```
 
----
-
-### 7.2 运行脚本
+Run:
 
 ```bash
 python3 merge_bilingual_srt.py
 ```
 
-生成：
+This generates:
 
 ```text
 01.bilingual.srt
@@ -684,54 +632,11 @@ python3 merge_bilingual_srt.py
 
 ---
 
-### 7.3 测试双语字幕
+## 9. Make Bilingual Subtitles Load Automatically
 
-用 VLC 打开第 1 集：
+Many players automatically load an `.srt` file with the same name as the video.
 
-```bash
-open -a VLC ~/Desktop/video_subtitle_project/watch/01.mp4
-```
-
-然后：
-
-```text
-Subtitles → Add Subtitle File...
-```
-
-选择：
-
-```text
-01.bilingual.srt
-```
-
-如果显示为：
-
-```text
-English sentence
-中文字幕
-```
-
-说明双语字幕合并成功。
-
----
-
-## 8. 让播放器自动加载双语字幕
-
-很多播放器会自动加载与视频同名的 `.srt` 文件。
-
-因此可以把：
-
-```text
-01.bilingual.srt
-```
-
-复制成：
-
-```text
-01.srt
-```
-
-单集测试：
+Test with one episode:
 
 ```bash
 cd ~/Desktop/video_subtitle_project/watch
@@ -740,7 +645,7 @@ cp 01.bilingual.srt 01.srt
 open -a VLC 01.mp4
 ```
 
-如果第 1 集成功自动显示双语字幕，再批量复制：
+If it works, batch-copy all bilingual subtitles:
 
 ```bash
 cd ~/Desktop/video_subtitle_project/watch
@@ -750,7 +655,7 @@ for i in $(seq -w 1 25); do
 done
 ```
 
-之后结构会类似：
+After this, each episode should have:
 
 ```text
 01.mp4
@@ -760,13 +665,11 @@ done
 01.bilingual.srt
 ```
 
-其中 `01.srt` 是默认自动加载字幕。
-
 ---
 
-## 9. 可选：封装成内置字幕 MKV
+## 10. Optional: Package Subtitles into MKV
 
-如果不想依赖外挂字幕，可以把视频、中文字幕、英文字幕封装到一个 MKV 文件里。
+Package Chinese and English subtitle tracks into MKV:
 
 ```bash
 cd ~/Desktop/video_subtitle_project
@@ -781,29 +684,14 @@ for i in $(seq -w 1 25); do
     -c:a copy \
     -c:s srt \
     -metadata:s:s:0 language=zho \
-    -metadata:s:s:0 title="中文" \
+    -metadata:s:s:0 title="Chinese" \
     -metadata:s:s:1 language=eng \
     -metadata:s:s:1 title="English" \
     "mkv/${i}.with-subtitles.mkv"
 done
 ```
 
-生成：
-
-```text
-mkv/
-├── 01.with-subtitles.mkv
-├── 02.with-subtitles.mkv
-└── ...
-```
-
-说明：
-
-- 这种方式是“软封装”，字幕可以打开、关闭、切换
-- 不会把字幕烧死在画面上
-- 视频和音频使用 `copy`，通常不会重新编码，速度较快
-
-如果想把双语字幕也封装进去：
+Package bilingual subtitle into MKV:
 
 ```bash
 cd ~/Desktop/video_subtitle_project
@@ -817,50 +705,53 @@ for i in $(seq -w 1 25); do
     -c:a copy \
     -c:s srt \
     -metadata:s:s:0 language=zho \
-    -metadata:s:s:0 title="中英双语" \
+    -metadata:s:s:0 title="Chinese-English Bilingual" \
     "mkv/${i}.bilingual.mkv"
 done
 ```
 
+Notes:
+
+* This is soft packaging.
+* Subtitles can still be turned on, turned off, or switched.
+* Subtitles are not burned into the video.
+* Video and audio are copied without re-encoding.
+
 ---
 
-## 10. 可选：做一个桌面快捷入口
+## 11. Optional: Desktop Shortcuts
 
-如果不想每次打开终端，可以创建一个桌面快捷脚本。
-
-### 10.1 一键打开课程文件夹
+### Open the watch folder
 
 ```bash
-cat > ~/Desktop/打开本地视频课程.command <<'SH'
+cat > ~/Desktop/Open_Local_Video_Course.command <<'SH'
 #!/bin/zsh
 open "$HOME/Desktop/video_subtitle_project/watch"
 SH
 
-chmod +x ~/Desktop/打开本地视频课程.command
+chmod +x ~/Desktop/Open_Local_Video_Course.command
 ```
 
-以后双击桌面上的：
+Double-click:
 
 ```text
-打开本地视频课程.command
+Open_Local_Video_Course.command
 ```
-
-即可打开 `watch/` 文件夹。
 
 ---
 
-### 10.2 一键播放第 1 集
+### Play Episode 1
 
 ```bash
-cat > ~/Desktop/播放第1集.command <<'SH'
+cat > ~/Desktop/Play_Episode_1.command <<'SH'
 #!/bin/zsh
 open -a VLC "$HOME/Desktop/video_subtitle_project/watch/01.mp4"
 SH
 
-chmod +x ~/Desktop/播放第1集.command
+chmod +x ~/Desktop/Play_Episode_1.command
 ```
 
-如果你更喜欢 IINA，把 `VLC` 改成 `IINA`：
+If you prefer IINA, replace `VLC` with `IINA`:
 
 ```bash
 open -a IINA "$HOME/Desktop/video_subtitle_project/watch/01.mp4"
@@ -868,30 +759,26 @@ open -a IINA "$HOME/Desktop/video_subtitle_project/watch/01.mp4"
 
 ---
 
-## 11. 常见问题排查
+## 12. Troubleshooting
 
-### 11.1 为什么我打开视频没有字幕？
+### No subtitles appear
 
-常见原因：
+Possible reasons:
 
-1. 你打开的是 `videos/` 里的原始视频，而不是 `watch/` 里的整理后视频
-2. 字幕文件名和视频文件名不对应
-3. 使用了 macOS 自带 QuickTime，外挂字幕支持较弱
-4. 播放器没有自动加载字幕，需要手动添加
+1. You opened the original video in `videos/`, not the organized video in `watch/`.
+2. Subtitle filenames do not match the video filenames.
+3. You are using QuickTime, which has weak external subtitle support.
+4. The player did not automatically load subtitles.
 
-建议：
+Recommended:
 
 ```bash
 open ~/Desktop/video_subtitle_project/watch
 ```
 
-然后用 VLC 或 IINA 打开：
+Then open `01.mp4` with VLC or IINA.
 
-```text
-01.mp4
-```
-
-确保旁边有：
+Make sure these files are next to it:
 
 ```text
 01.srt
@@ -901,16 +788,17 @@ open ~/Desktop/video_subtitle_project/watch
 
 ---
 
-### 11.2 为什么只有英文字幕，没有中文字幕？
+### Only English subtitles appear
 
-因为播放器当前只选择了英文字幕轨。  
-如果想同时显示中英，需要加载：
+The player is probably only using the English subtitle track.
+
+To display both languages, load:
 
 ```text
 01.bilingual.srt
 ```
 
-或默认字幕：
+or:
 
 ```text
 01.srt
@@ -918,27 +806,26 @@ open ~/Desktop/video_subtitle_project/watch
 
 ---
 
-### 11.3 VLC 能不能像下载工具一样下载在线视频？
+### VLC cannot download online videos
 
-不建议这么做。  
-VLC 主要用于播放本地文件和加载字幕，不适合作为批量下载工具。
+VLC is mainly for local playback and subtitle loading.
 
-推荐分工：
+Recommended workflow:
 
 ```text
-下载阶段：合法授权前提下使用 yt-dlp
-整理阶段：用脚本统一命名
-观看阶段：使用 VLC 或 IINA
-长期保存：可选封装为 MKV
+Download stage: use yt-dlp only when legally authorized
+Organization stage: use scripts to standardize filenames
+Viewing stage: use VLC or IINA
+Long-term storage: optionally package files as MKV
 ```
 
 ---
 
-### 11.4 遇到 HTTP 412、403、无法下载怎么办？
+### HTTP 412, 403, or download failure
 
-这通常与平台风控、代理、IP、登录状态、请求频率有关。
+This may be caused by platform risk control, proxy settings, login status, IP issues, or frequent requests.
 
-可尝试：
+Try:
 
 ```bash
 unset http_proxy
@@ -949,65 +836,83 @@ unset HTTPS_PROXY
 unset ALL_PROXY
 ```
 
-并确认：
+Also check:
 
-- 浏览器已经登录对应平台账号
-- 不使用异常代理或机房节点
-- 不频繁重复请求
-- 等几分钟后再试
-- 只下载自己有权访问和保存的内容
-
----
-
-### 11.5 字幕时间轴对不上怎么办？
-
-可以使用播放器临时调整字幕延迟：
-
-- VLC：`G` / `H` 调整字幕延迟
-- IINA：菜单栏里调整字幕延迟
-
-如果要永久修正，可以用 Aegisub 或 Subtitle Edit 修改字幕时间轴。
+* You are logged in to the platform in your browser.
+* You are not using an unusual proxy or data-center IP.
+* You are not sending requests too frequently.
+* You only download content you are authorized to access and save.
 
 ---
 
-### 11.6 字幕乱码怎么办？
+### Subtitle timing is not aligned
 
-优先确认字幕是 UTF-8 编码。  
-如果乱码，可以尝试用编辑器重新保存为 UTF-8。
+Temporary adjustment:
 
-macOS 命令行可以查看文件编码：
+* VLC: press `G` / `H`
+* IINA: adjust subtitle delay from the menu bar
+
+Permanent adjustment:
+
+* Use Aegisub or Subtitle Edit to edit the subtitle timeline.
+
+---
+
+### Subtitles are garbled
+
+Make sure the subtitle file is encoded in UTF-8.
+
+Check encoding:
 
 ```bash
 file 01.zh-CN.srt
 ```
 
+If garbled, reopen the subtitle file in a text editor and save it as UTF-8.
+
 ---
 
-## 推荐工作流总结
+## 13. Recommended Workflow
 
 ```text
-1. 合法获得视频和中英文字幕
-2. 放入 videos / subs_zh / subs_en
-3. 运行 organize_files.py 预览匹配
-4. 确认 match_preview.csv 正确
-5. 运行 organize_files.py --copy
-6. 用 VLC/IINA 测试单集外挂字幕
-7. 运行 merge_bilingual_srt.py 生成双语字幕
-8. 把 bilingual.srt 复制为同名 .srt
-9. 双击视频即可自动显示双语字幕
-10. 可选：用 FFmpeg 封装成 MKV
+1. Legally obtain video files and Chinese/English subtitles.
+2. Put them into videos / subs_zh / subs_en.
+3. Run organize_files.py to preview matching.
+4. Check match_preview.csv.
+5. Run organize_files.py --copy.
+6. Test external subtitles with VLC or IINA.
+7. Run merge_bilingual_srt.py.
+8. Copy bilingual subtitles as same-name .srt files.
+9. Open the video and automatically display bilingual subtitles.
+10. Optional: package subtitles into MKV files.
 ```
 
 ---
 
-## 注意事项
+## 14. Important Notes
 
-- 不要把个人账号 cookies、下载链接中带有个人追踪参数的 URL、真实用户名路径提交到 GitHub
-- 不要提交受版权保护的视频文件
-- 不要提交未经授权的课程资源
-- 如果要开源，只建议提交：
-  - 教程文档
-  - 脚本模板
-  - 空文件夹结构
-  - 示例文件名
-- 字幕和视频是否可以公开发布，取决于原始内容的授权协议
+Do not upload the following to GitHub:
+
+* personal account cookies
+* video URLs containing personal tracking parameters
+* real username paths
+* copyrighted video files
+* unauthorized course materials
+* subtitle files that you do not have permission to share
+
+If you want to open-source this project, it is recommended to upload only:
+
+* tutorial documents
+* script templates
+* empty folder structures
+* example filenames
+
+Whether videos or subtitles can be publicly shared depends on the license of the original content.
+
+---
+
+## License
+
+This project is for educational and personal study purposes only.
+
+Please follow the license terms of all original video and subtitle materials.
